@@ -170,27 +170,20 @@ def fetch_bitget(secrets):
     key, sec, pw = cfg.get("apiKey",""), cfg.get("secret",""), cfg.get("password","")
     if not key: return []
     ts = str(int(time.time()*1000))
-    path = "/api/v2/spot/account/assets"
+    # v3 endpoint works for Unified Account mode; the old v2 Classic spot endpoint
+    # returns 40085 ("Classic Account API is not supported") once UTA is enabled.
+    path = "/api/v3/account/assets"
     sig = base64.b64encode(hmac.new(sec.encode(), f"{ts}GET{path}".encode(), hashlib.sha256).digest()).decode()
     headers = {"ACCESS-KEY": key, "ACCESS-SIGN": sig, "ACCESS-TIMESTAMP": ts, "ACCESS-PASSPHRASE": pw, "Content-Type": "application/json"}
     positions = []
     try:
         data = http_get(f"https://api.bitget.com{path}", headers=headers, timeout=10)
-        for item in data.get("data", []):
-            avail = float(item.get("available", 0)) + float(item.get("frozen", 0))
+        for item in data.get("data", {}).get("assets", []):
+            avail = float(item.get("equity", 0))
             if avail <= 0: continue
             ccy = item.get("coin", "")
-            usd_val = float(item.get("usdtValue", 0))
-            if usd_val <= 0:
-                if ccy in ("USDT","USDC"): price = 1.0
-                else:
-                    try:
-                        tk = http_get(f"https://api.bitget.com/api/v2/spot/market/tickers?symbol={ccy}USDT", timeout=5)
-                        price = float(tk["data"][0]["lastPr"])
-                    except Exception: price = 0
-                usd_val = avail * price
-            else:
-                price = usd_val / avail if avail else 0
+            usd_val = float(item.get("usdValue", 0))
+            price = usd_val / avail if avail else 0
             positions.append({"symbol": ccy, "amount": avail, "value_usd": usd_val, "price": price, "exchange": "Bitget", "type": "spot"})
     except Exception: pass
     return positions
