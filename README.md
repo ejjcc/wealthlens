@@ -215,12 +215,18 @@ If any source fails, it's silently skipped — you always get whatever data is a
 
 ---
 
+## 🤖 Agent Skill: IBKR Trading
+
+[`skills/ibkr-trading/`](skills/ibkr-trading/SKILL.md) is an optional agent skill that goes beyond the read-only dashboard: live/historical IBKR queries, session-aware stock orders (SMART / OVERNIGHT routing, safe replace, server-side stops), single-leg and combo option orders, a daily option risk report, price alerts and a weekly stock-buy window ledger. Order scripts are dry-run unless `--execute` is passed, and the skill defines a confirmation card the agent must get approved before any live order.
+
+---
+
 ## 🔐 Security & Privacy
 
 - ✅ All API keys stored in `config/secrets.json` (git-ignored)
 - ✅ No secrets in source code
 - ✅ Read-only API keys recommended
-- ✅ IB Gateway runs with `ReadOnlyApi=yes`
+- ✅ IB Gateway runs with `ReadOnlyApi=yes` for the dashboard (the optional IBKR trading skill needs a write-enabled API session — run it on a separate Gateway login if you want the dashboard to stay read-only)
 - ✅ All data stays local — no external analytics or telemetry
 
 ---
@@ -313,6 +319,7 @@ The skill is a plain Markdown file — drop `skills/SKILL.md` into whatever cont
 ## 📖 Related Docs
 
 - **[skills/SKILL.md](./skills/SKILL.md)** — OpenClaw agent skill (chat-based dashboard)
+- **[skills/ibkr-trading/SKILL.md](./skills/ibkr-trading/SKILL.md)** — IBKR trading agent skill (orders, option risk, Flex history)
 - **[SETUP.md](./SETUP.md)** — Complete setup guide with troubleshooting
 - **[QUICKSTART.md](./QUICKSTART.md)** — Quick reference for common tasks
 - **[AGENT_HANDOFF.md](./AGENT_HANDOFF.md)** — For AI agents to understand the system

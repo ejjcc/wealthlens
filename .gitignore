@@ -1,6 +1,7 @@
 # 依赖
 node_modules/
 venv/
+.venv*/
 __pycache__/
 *.pyc
 
@@ -22,6 +23,7 @@ build/
 /data/*.jsonl
 /data/cache/
 /logs/*.log
+/logs/*.json
 
 # 敏感配置
 /config/secrets.json

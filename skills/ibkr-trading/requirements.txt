@@ -1,0 +1,2 @@
+# Pinned ib_async; rerun the paper execution matrix before upgrading.
+ib_async==2.1.0
