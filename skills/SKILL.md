@@ -139,5 +139,5 @@ uvicorn main:app --host 127.0.0.1 --port 8001
 
 - Use **read-only** API keys for all exchanges
 - `secrets.json` is git-ignored — never commit real keys
-- IB Gateway runs with `ReadOnlyApi=yes` by default
+- IB Gateway runs with `ReadOnlyApi=yes` by default (the separate [ibkr-trading](ibkr-trading/SKILL.md) skill places orders and needs a write-enabled, launchd-managed Gateway)
 - All data stays local, no external telemetry

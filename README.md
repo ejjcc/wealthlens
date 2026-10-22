@@ -219,6 +219,8 @@ If any source fails, it's silently skipped — you always get whatever data is a
 
 [`skills/ibkr-trading/`](skills/ibkr-trading/SKILL.md) is an optional agent skill that goes beyond the read-only dashboard: live/historical IBKR queries, session-aware stock orders (SMART / OVERNIGHT routing, safe replace, server-side stops), single-leg and combo option orders, a daily option risk report, price alerts and a weekly stock-buy window ledger. Order scripts are dry-run unless `--execute` is passed, and the skill defines a confirmation card the agent must get approved before any live order.
 
+It needs a different Gateway setup from the dashboard above: `ReadOnlyApi=no`, and Gateway owned by a launchd job (`com.user.ibc-gateway`) instead of `gatewaystartmacos.sh -inline &` from a shell. See its [prerequisites](skills/ibkr-trading/SKILL.md#prerequisites).
+
 ---
 
 ## 🔐 Security & Privacy

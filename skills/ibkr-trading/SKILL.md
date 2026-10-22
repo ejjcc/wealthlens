@@ -2,7 +2,7 @@
 name: ibkr-trading
 description: IBKR trading toolkit for AI agents — live (IB Gateway) and historical (Flex) queries, session-aware stock orders, single-leg and combo option orders, daily option risk check, one-shot price alerts, and a weekly stock-buy window ledger. All order scripts are dry-run by default.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # IBKR Trading Skill
@@ -37,7 +37,7 @@ Before a stock card, run `stock_status.py` once and build the card from that sin
 ### IB Gateway (live tools)
 
 - IB Gateway reachable at `127.0.0.1:4001` (override with `IBKR_HOST` / `IBKR_PORT`), started through [IBC](https://github.com/IbcAlpha/IBC).
-- The scripts assume Gateway is owned by a launchd job labelled `com.user.ibc-gateway` and start it with `launchctl kickstart -k gui/$(id -u)/com.user.ibc-gateway`. Never spawn `ibcstart.sh` from a short-lived shell: the session may be reaped during 2FA, and a second instance on the same login kicks the first one off.
+- Do not use the dashboard's `ReadOnlyApi=yes` / `gatewaystartmacos.sh -inline &` setup from the main README for this skill: orders need `ReadOnlyApi=no`, and the scripts assume Gateway is owned by a launchd job labelled `com.user.ibc-gateway` and start it with `launchctl kickstart -k gui/$(id -u)/com.user.ibc-gateway`. Never spawn `ibcstart.sh` from a short-lived shell: the session may be reaped during 2FA, and a second instance on the same login kicks the first one off.
 - `_gw.ensure_gateway()` lets cron consumers (`option_risk.py`, `price_alert.py`) start Gateway on demand with three anti-2FA-spam guards: quiet hours 02:00–09:00 local, a 40-minute shared throttle (`~/ibc/run/cron_autostart.json`), and at most 2 attempts per outage.
 - `ibc-overrides/maintenance-reconnect/` is an optional IBC 3.23.0 patch that lets Gateway reconnect natively after the transient TLS error seen during IBKR's APAC maintenance reset, instead of cold-restarting and re-prompting 2FA.
 - Overnight (20:00–03:50 ET) stock orders need `BypassRedirectOrderWarning=yes` in IBC's `config.ini`; see `references/stock-session-routing.md`.
@@ -165,7 +165,7 @@ $PY $S/trade_quota.py check --action BUY        # exit 2 when the window is clos
 $PY $S/price_alert.py --symbol AAPL --above 300 --note "reclaimed 300"
 ```
 
-`price_alert.py` fires once per alert (state in `logs/price_alert.json`; delete the key to re-arm) and exits silently outside RTH or when Gateway is offline.
+`price_alert.py` fires once per alert (state in `logs/price_alert.json`; delete the key to re-arm) and exits silently outside RTH. If Gateway is down it goes through `ensure_gateway()` (same guards as above) and sends a Telegram notice only when it actually triggered a start that timed out waiting for 2FA.
 
 ## Scheduling the daily option risk report
 
